@@ -32,3 +32,17 @@ Głównym obwodem projektu jest CPU otwierający się domyślnie przy starcie pr
 Pod nim znajduje się obwód ControlSection zawierający sekcje sterującą.
 W folderze alu3_5v2 znajdują się obwody tworzące ALU procesora.
 Główny obwód ALU to ALU_v2
+
+
+Używanie skryptu do tłumaczenia kodu:
+możemy w oparciu o dokumentację napisać program:
+082 069 083 044 100 004
+Działanie tego programu to: Użyj intrukcji DATA z określonym rejestrem (010) zeby wczytac 069, następnie znowu DATA do rejestru (011) wczytac 044.
+Zawieszenie programu JUMP do miejsca gdzie jest JUMP.
+
+W skrypcie, w main, możemy napisać to po prostu:
+DATA("010","069")
+DATA("011","044")
+JUMP("004")
+Zostanie wygenerowany plik *.txt w którym będzie zpaisany program w postaci 3digitHex, który przyjmuje procesor.
+Należy uważać na JUMP, gdyż nie wiemy, w które miejsce chcemy dokonać skoku, bez podglądu na RAM, zalecane jest zawieszanie programu w stary sposób.
