@@ -154,7 +154,7 @@ def code_me(bit_alu, bits_operation, bits_reg_a, bits_reg_b):
     #print(hexik)
     #print('%03X' % int(hexik, 2))
     result= ('%03X' % int(hexik, 2))
-    #print(result)
+    print(result)
     return result
 
 # if(bit_opcode=="0000"):
@@ -222,8 +222,8 @@ def DATA(rb,value):
         value in next RAM cell, value we want to load to register B
     """
     ra="000" #bcs not used!
-    hex_val = value
-    nexT_data = ('%03X' % int(hex_val, 2))
+    #hex_val = value
+    nexT_data =value#  ('%03X' % int(hex_val, 2))
     opcode="0010"
     not_ALU_template(ra,rb,opcode)
     with open(PROGRAM_NAME, 'a') as file_object:
@@ -233,9 +233,20 @@ def JMPR(ra,rb):
     opcode="0011"
     not_ALU_template(ra,rb,opcode)
 
-def JUMP(ra,rb):
+def JUMP(value):
+    """" Jump to adress specified in next cell of RAM
+        Parameters
+        ----------
+        value: str
+            where we want program to jump
+        """
+    nexT_data = value #('%03X' % int(hex_val, 2))
+    ra="000"
+    rb="000"
     opcode="0100"
     not_ALU_template(ra,rb,opcode)
+    with open(PROGRAM_NAME, 'a') as file_object:
+        file_object.write(nexT_data + " ")
 
 def JMP_IF(ra,rb):
     opcode="0101"
@@ -269,6 +280,7 @@ if __name__ == '__main__':
     codes3=["015","047", "015","016", "049", "05a"]
     codes4=["033", "066"]
 
+    code_me("0", "0010", "000", "011")
     # for code in codes:
     #     take_me(code)
     # for code in codes2:
@@ -277,5 +289,8 @@ if __name__ == '__main__':
     #     take_me(code)
     # for code in codes4:
     #     take_me(code)
+    take_me("082")
 
-    take_me("4c1")
+    DATA("010","069")
+    DATA("011","044")
+    JUMP("004")
