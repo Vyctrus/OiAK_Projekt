@@ -157,29 +157,14 @@ def code_me(bit_alu, bits_operation, bits_reg_a, bits_reg_b):
     print(result)
     return result
 
-# if(bit_opcode=="0000"):
-#             print("LOAD")
-#         elif(bit_opcode=="0001"):
-#             print("STORE")
-#         elif (bit_opcode == "0010"):
-#             print("DATA")
-#         elif (bit_opcode == "0011"):
-#             print("JMPR")
-#         elif (bit_opcode == "0100"):
-#             print("JUMP")
-#         elif (bit_opcode == "0101"):
-#             print("JMP_IF")
-#         elif (bit_opcode == "0110"):
-#             print("SET_IM")
-#         elif (bit_opcode == "0111"):
-#             print("STROE_RESULTS")
-#         elif (bit_opcode == "1000"):
-#             print("RESULT_FLG")
-#         elif (bit_opcode == "1001"):
-#             print("STROE_OVS")
 
 def not_ALU_template(ra,rb, opcode):
     hex_code = code_me("0", opcode, ra, rb)
+    with open(PROGRAM_NAME, 'a') as file_object:
+        file_object.write(hex_code + " ")
+
+def ALU_template(ra,rb, opcode):
+    hex_code = code_me("1", opcode, ra, rb)
     with open(PROGRAM_NAME, 'a') as file_object:
         file_object.write(hex_code + " ")
 
@@ -235,11 +220,11 @@ def JMPR(ra,rb):
 
 def JUMP(value):
     """" Jump to adress specified in next cell of RAM
-        Parameters
-        ----------
-        value: str
-            where we want program to jump
-        """
+    Parameters
+    ----------
+    value: str
+        where we want program to jump
+    """
     nexT_data = value #('%03X' % int(hex_val, 2))
     ra="000"
     rb="000"
@@ -268,6 +253,60 @@ def STORE_OVS(ra,rb):
     opcode="1001"
     not_ALU_template(ra,rb,opcode)
 
+#=========================================  ALU part
+def ADD(ra,rb):
+    """" acc re= val(ra)+val(rb)
+    ADD numbers from register specified in ra to register specified in rb
+    You need to use STORE_RESULTS if you want to save result, read more in STORE_RESULT doc
+    Todo: merge this with STORE_RESULTS
+    Parameters
+    ----------
+    ra: value of first operand
+
+    rb: value of second operand
+    """
+    opcode="0000"
+    ALU_template(ra,rb,opcode)
+
+def ADD_IM(ra,rb):
+    opcode="0001"
+    ALU_template(ra,rb,opcode)
+
+def SUB_IM(ra,rb):
+    opcode="0010"
+    ALU_template(ra,rb,opcode)
+
+def MUL_IM(ra,rb):
+    opcode="0011"
+    ALU_template(ra,rb,opcode)
+
+def DIV_IM(ra,rb):
+    opcode="0100"
+    ALU_template(ra,rb,opcode)
+
+def a2_b2(ra,rb):
+    opcode="0101"
+    ALU_template(ra,rb,opcode)
+
+def COMPARE(ra,rb):
+    opcode="0110"
+    ALU_template(ra,rb,opcode)
+
+def DEC_A(ra,rb):
+    opcode="0111"
+    ALU_template(ra,rb,opcode)
+
+def INC_A(ra,rb):
+    opcode="1000"
+    ALU_template(ra,rb,opcode)
+
+def MUL_A_C(ra,rb):
+    opcode="1001"
+    ALU_template(ra,rb,opcode)
+
+def DIV_A_C(ra,rb):
+    opcode="1010"
+    ALU_template(ra,rb,opcode)
 
 
 if __name__ == '__main__':
@@ -291,6 +330,8 @@ if __name__ == '__main__':
     #     take_me(code)
     take_me("082")
 
-    DATA("010","069")
-    DATA("011","044")
-    JUMP("004")
+    DATA("010","069") #rozmiar na 2 komorki pamieci
+    DATA("011","044") #rozmiar na 2 komorki pamieci
+    ADD("010","011") #rozmiar 1
+    STORE_RESULTS("100","100") #rozmiar1
+    JUMP("006")
