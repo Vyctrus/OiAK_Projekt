@@ -54,3 +54,21 @@ ADD(regC, regD)
 STORE_RESULTS(regE,regE)
 KEEP_IN_PLACE()
 
+w can create simple FOR Loop:
+DATA_INT(regC,0)            #2
+DATA_INT(regD,1)            #2
+DATA_INT(regE,8)            #2
+RESET_FLG()                 #1
+
+ADD(regC,regD)              #1
+STORE_RESULTS(regC,regC)    #1
+
+COMPARE(regC,regE)          #1
+JMP_IF_3("020")             #2
+JUMP("007")                 #2
+** JUMP("020") **
+cell_update_after_jump("020")
+KEEP_IN_PLACE()
+i dont know how to update ... eureka? ** JUMP("020")** should update CURRENT_CELL corectly and is placed in unreachable section of code, but anyway: u need to play carefullly with jumps if u wish to use CURRENT_CELL variable or KEEP_IN_PLACE, to support calculations i wrote size of each command next to itself.
+Todo: convert this into high level function FOR(int i=?, max= ?, step=?) i- start value, max value 4 comparation, step- size of single step (should be 1 in standard loop)
+
