@@ -46,3 +46,11 @@ DATA("011","044")
 JUMP("004")
 Zostanie wygenerowany plik *.txt w którym będzie zpaisany program w postaci 3digitHex, który przyjmuje procesor.
 Należy uważać na JUMP, gdyż nie wiemy, w które miejsce chcemy dokonać skoku, bez podglądu na RAM, zalecane jest zawieszanie programu w stary sposób.
+
+Obecna forma pisania programu na dodanie 2ch liczb:
+DATA_INT(regC, 105)
+DATA_INT(regD, 68)
+ADD(regC, regD)
+STORE_RESULTS(regE,regE)
+KEEP_IN_PLACE()
+
