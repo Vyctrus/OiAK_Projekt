@@ -29,9 +29,16 @@ def int_from_hex3(hexNumber):
     intVal= int(hexNumber, 16)
     return intVal
 
+
 def cell_inc():
     global CURRENT_CELL
     CURRENT_CELL+=1
+
+
+def cell_update_after_jump(jmpAdrress):
+    betterVal= int_from_hex3(jmpAdrress)
+    global CURRENT_CELL
+    CURRENT_CELL = betterVal
 
 def take_me(hex3str):
     # XXX -> LOAD what from what, from where
@@ -255,6 +262,7 @@ def JMPR(ra,rb):
 
 def JUMP(value):
     """" Jump to adress specified in next cell of RAM
+    Size: 2 cells x 3Hex
     Parameters
     ----------
     value: str
@@ -268,6 +276,7 @@ def JUMP(value):
     with open(PROGRAM_NAME, 'a') as file_object:
         file_object.write(nexT_data + " ")
     cell_inc()
+    cell_update_after_jump(value)
 
 def JMP_IF(ra,rb):
     opcode="0101"
@@ -379,12 +388,7 @@ if __name__ == '__main__':
     #     take_me(code)
 
     take_me("082")
-    # jak uzyskato poniej w lepszy sposb?
-    # inkrementacja zajetej pamieci w zaleznosci od wykonanych zapisw wczesniej
-    # ADDx(liczba A, liczba B) i zapis do rejestru "eax"
-    # zapisz do rejestru A? podstwic symbole pod konkretne numery rejestrów
-    # załaduj z rejestru do rejestru coś takiego eax=ebx
-    # stwórz funkcje exit/zawieszenie KEEP_IN_PLACE do tego potrzebne inkrementacje pamięciowe
+    # update Cell when jump
     if(False):
         #example of usage hex3_from_int(), int_from_hex3
         DATA("010","069") #rozmiar na 2 komorki pamieci
@@ -404,5 +408,18 @@ if __name__ == '__main__':
         #DATA(regD,"044")
         ADD(regC,regD) #rozmiar 1
         STORE_RESULTS(regE,regE) #rozmiar1
+
+        hexVal = hex3_from_int(CURRENT_CELL)
+        print("Adress before jump : {0}".format(hexVal))
+
+        JUMP("020") # after this <- will increment +2, we need to change it to? 001?
+        #cell_update_after_jump("020")
+
+        hexVal = hex3_from_int(CURRENT_CELL)
+        print("Adress after jump : {0}".format(hexVal))
+
         KEEP_IN_PLACE()
+
+        hexVal = hex3_from_int(CURRENT_CELL)
+        print("Adress after jump : {0}".format(hexVal))
 
