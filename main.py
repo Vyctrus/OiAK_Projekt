@@ -209,6 +209,7 @@ def ALU_template(ra,rb, opcode):
         file_object.write(hex_code + " ")
     cell_inc()
 
+#======================================= #CS ControlSection
 def LOAD(ra,rb):
     """"reg(rb)= RAM(reg(ra))
     loads from RAM specified in register number ra, to register number rb
@@ -240,6 +241,7 @@ def STORE(ra,rb):
 def DATA(rb,value):
     """" reg(rb)= RAM from next RAM space
     read from next cell of RAM to register
+    size: 2 x 3HexCell
     Parameters
     ----------
     rb : str
@@ -278,19 +280,49 @@ def JUMP(value):
     cell_inc()
     cell_update_after_jump(value)
 
-def JMP_IF(ra,rb):
+def JMP_IF(address, flags):
+    """ #Todo think about size, change CURRENT_CELL after jump ? how can i know?
+        # Do not use now!
+    size: ? similar as jump
+    JUMP IF condition:
+    bit 0 -  ALU.A==0
+    bit 1 - numbers (A,B)==(C,D)
+    bit 2 - ALU.A > ALU.C
+    bit 3 - ALU.A == ALU.C
+    bit 4 - flag is true div by zero
+    :param adrress: adrress in memory where point our JUMP_IF
+    :param flags: value which determines which flag is important
+    """
+    raise Exception("Sorry, you shouldn't use this function, check doc once more, or implement your own function")
+    next_data = address
+    ra="111"
+    rb="111"
     opcode="0101"
     not_ALU_template(ra,rb,opcode)
+
 
 def SET_IM(ra,rb):
     opcode="0110"
     not_ALU_template(ra,rb,opcode)
 
 def STORE_RESULTS(ra,rb):
+    """
+    size: 1 x 3hexCell
+    :param ra:
+    :param rb:
+    :return:
+    """
     opcode="0111"
     not_ALU_template(ra,rb,opcode)
 
-def RESET_FLG(ra,rb):
+def RESET_FLG():
+    """ CLear FLAGS register
+    size: 1 x 3hexCell
+    ra, rb are not used, they do not change the result
+
+    """
+    ra="000"
+    rb="000"
     opcode="1000"
     not_ALU_template(ra,rb,opcode)
 
@@ -298,12 +330,12 @@ def STORE_OVS(ra,rb):
     opcode="1001"
     not_ALU_template(ra,rb,opcode)
 
-#=========================================  ALU part
+#=========================================  #ALU
 def ADD(ra,rb):
     """" acc re= val(ra)+val(rb)
+    size= 1 x 3HexCell
     ADD numbers from register specified in ra to register specified in rb
     You need to use STORE_RESULTS if you want to save result, read more in STORE_RESULT doc
-    Todo: merge this with STORE_RESULTS
     Parameters
     ----------
     ra: value of first operand
@@ -334,6 +366,12 @@ def a2_b2(ra,rb):
     ALU_template(ra,rb,opcode)
 
 def COMPARE(ra,rb):
+    """ comparing 2 numbers from selected registers
+    size: 1 x 3HexCell
+    :param ra:
+    :param rb:
+    :return:
+    """
     opcode="0110"
     ALU_template(ra,rb,opcode)
 
@@ -353,7 +391,7 @@ def DIV_A_C(ra,rb):
     opcode="1010"
     ALU_template(ra,rb,opcode)
 
-#======== Higher level functions ====================
+#======== Higher level functions ==================== #HLF
 
 def KEEP_IN_PLACE():
     """" cell JUMP-> cell JUMP
@@ -366,6 +404,7 @@ def KEEP_IN_PLACE():
 
 def DATA_INT(register,intVal):
     """"fills register with integerValue
+    size: 2 x 3HexCell
      Parameters
     ----------
     register: register where we want to store value
@@ -376,7 +415,26 @@ def DATA_INT(register,intVal):
     """
     DATA(register, hex3_from_int(intVal))
 
-#========== Live code section =====================
+def JMP_IF_3(address):
+    """ status: testing
+    JUMP IF ocndition specified by flag bit 3: jump if ALU.A == ALU.C
+    Dangerous Function! Desynchronizing cell_update !!!
+    size: 2 x 3HexCell //instruction name + address in 2nd cell
+    :param address:
+    :return:
+    """
+    next_data = address
+    ra = "001" # bit "number 3" set to 1
+    rb = "000"
+    opcode = "0101"
+    not_ALU_template(ra, rb, opcode)
+    with open(PROGRAM_NAME, 'a') as file_object:
+        file_object.write(next_data + " ")
+    cell_inc()
+    # cell_update_after_jump(value)
+
+
+#========== Live code section ===================== #LCS
 if __name__ == '__main__':
     #code_me("1","1111","010","001")
     #take_me("022")
@@ -402,24 +460,20 @@ if __name__ == '__main__':
         print("Int value : {0}".format(intVal))
         JUMP("006")
     else:
-        DATA_INT(regC,105)
-        DATA_INT(regD,68)
-        #DATA(regC,"069") # same as above ( DATA_INT(regC,105)) :D !!!
-        #DATA(regD,"044")
-        ADD(regC,regD) #rozmiar 1
-        STORE_RESULTS(regE,regE) #rozmiar1
+        #trying to create  for loop
 
-        hexVal = hex3_from_int(CURRENT_CELL)
-        print("Adress before jump : {0}".format(hexVal))
+        DATA_INT(regC,0)            #2
+        DATA_INT(regD,1)            #2
+        DATA_INT(regE,8)            #2
+        RESET_FLG()                 #1
 
-        JUMP("020") # after this <- will increment +2, we need to change it to? 001?
-        #cell_update_after_jump("020")
+        ADD(regC,regD)              #1
+        STORE_RESULTS(regC,regC)    #1
 
-        hexVal = hex3_from_int(CURRENT_CELL)
-        print("Adress after jump : {0}".format(hexVal))
+        COMPARE(regC,regE)          #1
+        JMP_IF_3("020")             #2
+        JUMP("007")                 #2
 
+
+        cell_update_after_jump("020")
         KEEP_IN_PLACE()
-
-        hexVal = hex3_from_int(CURRENT_CELL)
-        print("Adress after jump : {0}".format(hexVal))
-
