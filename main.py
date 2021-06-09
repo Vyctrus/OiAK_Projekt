@@ -1,4 +1,11 @@
-
+"""
+Project Name : mindkeeper
+Author: Andrzej Gierlak
+Project started in 06.2021
+Desription: i just got annoyed by hex<->binary<->instruction transformations and have a little free time before exams
+    + i always wanted to do this: creating imaginary programs in imaginary language, for imaginary CPU xD
+    + mindkeeper because i thought, i would have gone insane
+"""
 PROGRAM_NAME = "program.txt"
 DECODE_PROGRAM= "decode.txt"
 CURRENT_CELL = 0
