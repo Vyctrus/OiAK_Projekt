@@ -1,6 +1,31 @@
 
 PROGRAM_NAME = "program.txt"
 DECODE_PROGRAM= "decode.txt"
+CURRENT_CELL = 0
+regA = "000"
+regB = "001"
+regC = "010"
+regD = "011"
+regE = "100"
+regF = "101"
+regG = "110"
+regH = "111"
+
+
+# należy je zwiększać po każdym zapisie do pliku program.txt
+
+def hex3_from_int(number):
+    hexVal = '{:03x}'.format(number)
+    return hexVal
+
+def int_from_hex3(hexNumber):
+    intVal= int(hexNumber, 16)
+    return intVal
+
+def cell_inc():
+    global CURRENT_CELL
+    CURRENT_CELL+=1
+
 def take_me(hex3str):
     # XXX -> LOAD what from what, from where
     my_hex_data= "fa1"
@@ -162,11 +187,13 @@ def not_ALU_template(ra,rb, opcode):
     hex_code = code_me("0", opcode, ra, rb)
     with open(PROGRAM_NAME, 'a') as file_object:
         file_object.write(hex_code + " ")
+    cell_inc()
 
 def ALU_template(ra,rb, opcode):
     hex_code = code_me("1", opcode, ra, rb)
     with open(PROGRAM_NAME, 'a') as file_object:
         file_object.write(hex_code + " ")
+    cell_inc()
 
 def LOAD(ra,rb):
     """"reg(rb)= RAM(reg(ra))
@@ -213,6 +240,7 @@ def DATA(rb,value):
     not_ALU_template(ra,rb,opcode)
     with open(PROGRAM_NAME, 'a') as file_object:
         file_object.write(nexT_data + " ")
+    cell_inc()
 
 def JMPR(ra,rb):
     opcode="0011"
@@ -232,6 +260,7 @@ def JUMP(value):
     not_ALU_template(ra,rb,opcode)
     with open(PROGRAM_NAME, 'a') as file_object:
         file_object.write(nexT_data + " ")
+    cell_inc()
 
 def JMP_IF(ra,rb):
     opcode="0101"
@@ -308,30 +337,65 @@ def DIV_A_C(ra,rb):
     opcode="1010"
     ALU_template(ra,rb,opcode)
 
+#======== Higher level functions ====================
 
+def KEEP_IN_PLACE():
+    """" cell JUMP-> cell JUMP
+     keep program in one place, stops execution of RAM
+     works only if CURRENT_CELL incremented properly
+     DANGER! other jumps in program, desynchronize this function
+     Todo: update CURRENT_CELL after each JUMP instruction
+    """
+    JUMP(hex3_from_int(CURRENT_CELL))
+
+def DATA_INT(register,intVal):
+    """"fills register with integerValue
+     Parameters
+    ----------
+    register: register where we want to store value
+
+    intVal: integer number we want to store on RAM, and then it will be loaded form there to specified register,
+    when program runs
+
+    """
+    DATA(register, hex3_from_int(intVal))
+
+#========== Live code section =====================
 if __name__ == '__main__':
-    #take_me()
     #code_me("1","1111","010","001")
     #take_me("022")
+    # ^- very primitive start :D
 
     codes=["022","011","066"]
-    codes2=["044","032","032","022","046","022","038","075"]
-    codes3=["015","047", "015","016", "049", "05a"]
-    codes4=["033", "066"]
-
     code_me("0", "0010", "000", "011")
     # for code in codes:
     #     take_me(code)
-    # for code in codes2:
-    #     take_me(code)
-    # for code in codes3:
-    #     take_me(code)
-    # for code in codes4:
-    #     take_me(code)
-    take_me("082")
 
-    DATA("010","069") #rozmiar na 2 komorki pamieci
-    DATA("011","044") #rozmiar na 2 komorki pamieci
-    ADD("010","011") #rozmiar 1
-    STORE_RESULTS("100","100") #rozmiar1
-    JUMP("006")
+    take_me("082")
+    # jak uzyskato poniej w lepszy sposb?
+    # inkrementacja zajetej pamieci w zaleznosci od wykonanych zapisw wczesniej
+    # ADDx(liczba A, liczba B) i zapis do rejestru "eax"
+    # zapisz do rejestru A? podstwic symbole pod konkretne numery rejestrów
+    # załaduj z rejestru do rejestru coś takiego eax=ebx
+    # stwórz funkcje exit/zawieszenie KEEP_IN_PLACE do tego potrzebne inkrementacje pamięciowe
+    if(False):
+        #example of usage hex3_from_int(), int_from_hex3
+        DATA("010","069") #rozmiar na 2 komorki pamieci
+        DATA("011","044") #rozmiar na 2 komorki pamieci
+        ADD("010","011") #rozmiar 1
+        STORE_RESULTS("100","100") #rozmiar1
+        print("Skacze na CELL: {0}".format(CURRENT_CELL))
+        hexVal= hex3_from_int(CURRENT_CELL)
+        print("Hexvalue : {0}".format(hexVal))
+        intVal= int_from_hex3(hexVal)
+        print("Int value : {0}".format(intVal))
+        JUMP("006")
+    else:
+        DATA_INT(regC,105)
+        DATA_INT(regD,68)
+        #DATA(regC,"069") # same as above ( DATA_INT(regC,105)) :D !!!
+        #DATA(regD,"044")
+        ADD(regC,regD) #rozmiar 1
+        STORE_RESULTS(regE,regE) #rozmiar1
+        KEEP_IN_PLACE()
+
